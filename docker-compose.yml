@@ -1,0 +1,49 @@
+version: '3.9'
+
+services:
+
+  java-api:
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    container_name: java-api
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./Backend/.env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:h2:file:/data/h2db;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.h2.Driver
+      SPRING_DATASOURCE_USERNAME: sa
+      SPRING_DATASOURCE_PASSWORD:
+      OPENAI_API_KEY: ${OPENAI_API_KEY}   # Make sure this is set in your .env file
+      PYTHON_OCR_URL: http://python-service:8000  # Updated for Docker networking
+    volumes:
+      - h2-data:/data
+      - ./Backend/storage:/storage
+    restart: unless-stopped
+
+  react-frontend:
+    build:
+      context: ./form-data-extractor  # Make sure this folder exists relative to docker-compose.yml
+      dockerfile: Dockerfile
+    container_name: react-frontend
+    ports:
+      - "3000:80"   # Access frontend on localhost:3000
+    depends_on:
+      - java-api
+    restart: unless-stopped
+
+  python-service:
+    build:
+      context: ./ocr-service
+      dockerfile: Dockerfile
+    container_name: python-service
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./ocr-service/.env
+    restart: unless-stopped
+
+volumes:
+  h2-data:
