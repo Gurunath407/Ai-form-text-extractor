@@ -1,6 +1,9 @@
 import axios from 'axios';
 import React, { useState, useRef, useEffect } from 'react';
 
+// Determine the backend URL based on environment
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8080';
+
 // Helper to flatten nested JSON into key-value pairs using ONLY leaf keys (e.g. "city", not "address.city")
 function flattenFieldsUseOnlyLeafKeys(obj, acc = {}, keySet = new Set()) {
   function helper(value, parentKeys = []) {
@@ -112,20 +115,20 @@ const Home = () => {
   const uploadImage = async (file) => {
     const formData = new FormData();
     formData.append('file', file);
-    const response = await axios.post('http://localhost:8080/v1/uploads', formData, {
+    const response = await axios.post(`${BACKEND_URL}/v1/uploads`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
     return response.data.runId;
   };
 
   const startExtraction = async (runId) => {
-    const response = await axios.get(`http://localhost:8080/v1/runs/${runId}`);
+    const response = await axios.get(`${BACKEND_URL}/v1/runs/${runId}`);
     return response.data;
   };
 
   const getExtractionResult = async (runId, format = 'json') => {
     const response = await axios.post(
-      'http://localhost:8080/v1/exports',
+      `${BACKEND_URL}/v1/exports`,
       { runId, format },
       {
         headers: { 'Content-Type': 'application/json' },
@@ -138,7 +141,7 @@ const Home = () => {
   const fetchAllExtractions = async () => {
     setLoadingExtractions(true);
     try {
-      const response = await axios.get('http://localhost:8080/v1/extractions');
+      const response = await axios.get(`${BACKEND_URL}/v1/extractions`);
       setExtractions(response.data);
     } catch (err) {
       addMessage(`Failed to load extractions: ${err.message}`);
@@ -149,7 +152,7 @@ const Home = () => {
 
   const deleteExtraction = async (id) => {
     try {
-      await axios.delete(`http://localhost:8080/v1/extractions/${id}`);
+      await axios.delete(`${BACKEND_URL}/v1/extractions/${id}`);
       fetchAllExtractions();
       addMessage('Extraction deleted.');
     } catch (err) {
@@ -160,7 +163,7 @@ const Home = () => {
   const deleteAllExtractions = async () => {
     if (!window.confirm('Delete all extractions? This cannot be undone.')) return;
     try {
-      await axios.delete('http://localhost:8080/v1/extractions');
+      await axios.delete(`${BACKEND_URL}/v1/extractions`);
       fetchAllExtractions();
       addMessage('All extractions deleted.');
     } catch (err) {
@@ -171,7 +174,7 @@ const Home = () => {
   const updateExtraction = async () => {
     try {
       JSON.parse(tempEditData.resultJson);
-      await axios.put(`http://localhost:8080/v1/extractions/${currentEdit.id}`, tempEditData);
+      await axios.put(`${BACKEND_URL}/v1/extractions/${currentEdit.id}`, tempEditData);
       setEditModalOpen(false);
       fetchAllExtractions();
       addMessage('Extraction updated.');
