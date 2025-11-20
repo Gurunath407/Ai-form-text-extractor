@@ -592,8 +592,8 @@ const Home = () => {
                   <tr>
                     <th className="px-4 py-2 border text-left">ID</th>
                     <th className="px-4 py-2 border text-left">Run ID</th>
-                    <th className="px-4 py-2 border text-left">Doc Type</th>
-                    <th className="px-4 py-2 border text-left">Avg Confidence</th>
+
+            
                     <th className="px-4 py-2 border text-left">Created</th>
                     <th className="px-4 py-2 border text-left">Actions</th>
                   </tr>
@@ -603,8 +603,7 @@ const Home = () => {
                     <tr key={ex.id} className="border-t hover:bg-gray-50">
                       <td className="px-4 py-2 border">{ex.id}</td>
                       <td className="px-4 py-2 border font-mono text-sm">{ex.runId}</td>
-                      <td className="px-4 py-2 border">{ex.documentType || '—'}</td>
-                      <td className="px-4 py-2 border">{ex.avgConfidence?.toFixed(2) || '—'}</td>
+                    
                       <td className="px-4 py-2 border">{new Date(ex.createdAt).toLocaleString()}</td>
                       <td className="px-4 py-2 border space-x-2">
                         <button
