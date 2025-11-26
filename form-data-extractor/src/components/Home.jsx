@@ -260,7 +260,7 @@ const Home = () => {
           break;
         } catch (error) {
           tries += 1;
-          if (tries > 15) throw new Error('Timeout waiting for result.');
+          if (tries > 100) throw new Error('Timeout waiting for result.');
         }
       }
 
@@ -763,11 +763,10 @@ const Home = () => {
                       <td className="px-4 py-2 border font-mono">{item.id}</td>
                       <td className="px-4 py-2 border">{item.timestamp}</td>
                       <td className="px-4 py-2 border">
-                        <span className={`px-2 py-1 rounded-full text-xs ${
-                          item.status === 'completed'
+                        <span className={`px-2 py-1 rounded-full text-xs ${item.status === 'completed'
                             ? 'bg-green-100 text-green-800'
                             : 'bg-red-100 text-red-800'
-                        }`}>
+                          }`}>
                           {item.status}
                         </span>
                       </td>

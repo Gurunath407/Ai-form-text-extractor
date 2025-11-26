@@ -1,17 +1,14 @@
-# Use Eclipse Temurin JDK 21
+# Stage 1: Build
+FROM maven:3.9-eclipse-temurin-21 AS build
+WORKDIR /app
+COPY pom.xml .
+COPY src ./src
+RUN mvn clean package -DskipTests
+
+# Stage 2: Run
 FROM eclipse-temurin:21-jdk
-
-# Set working directory
 WORKDIR /usr/app/
-
-# Copy the Spring Boot JAR
-COPY target/Ai-Handwritten-Form-Text-Extractor-V1.jar /usr/app/
-
-# Copy the .env file into the container
+COPY --from=build /app/target/Ai-Handwritten-Form-Text-Extractor-V1.jar /usr/app/
 COPY .env /usr/app/.env
-
-# Expose port
 EXPOSE 8080
-
-# Use ENTRYPOINT with sh -c so environment variables from docker-compose or .env are picked up
 ENTRYPOINT ["sh", "-c", "java -jar Ai-Handwritten-Form-Text-Extractor-V1.jar"]

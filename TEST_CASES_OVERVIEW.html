@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Cases Overview</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 210mm; /* A4 width */
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #2980b9;
+            margin-top: 30px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        th, td {
+            border: 1px solid #bdc3c7;
+            padding: 10px;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background-color: #ecf0f1;
+            font-weight: bold;
+            color: #2c3e50;
+            width: 15%;
+        }
+        td:nth-child(2) { width: 25%; } /* Description */
+        td:nth-child(3) { width: 30%; } /* Inputs */
+        td:nth-child(4) { width: 30%; } /* Expected Output */
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .note {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+        }
+
+        @media print {
+            body {
+                width: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            .note {
+                display: none; /* Hide the note about printing when actually printing */
+            }
+            table {
+                page-break-inside: auto;
+            }
+            tr {
+                page-break-inside: avoid;
+                page-break-after: auto;
+            }
+            h2 {
+                page-break-after: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Test Cases Overview</h1>
+
+    <div class="note">
+        <strong>Tip:</strong> To save this as a PDF, press <code>Ctrl + P</code> (or <code>Cmd + P</code> on Mac) and select "Save as PDF" as the destination.
+    </div>
+
+    <h2>1. Frontend Test Cases (E2E)</h2>
+    <p>These tests verify the user interface and end-to-end flows using Playwright.</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Test Case ID</th>
+                <th>Test Case Description</th>
+                <th>Inputs</th>
+                <th>Expected Output</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>FE-01</strong></td>
+                <td><strong>Load Home Page</strong></td>
+                <td>URL: <code>http://localhost:3000</code></td>
+                <td>
+                    • Page Title contains "Form Data Extractor"<br>
+                    • "Upload & Process" section is visible
+                </td>
+            </tr>
+            <tr>
+                <td><strong>FE-02</strong></td>
+                <td><strong>Upload Image and Extract Data</strong></td>
+                <td>
+                    • File: <code>sample_form.jpg</code><br>
+                    • Action: Click "Extract" button
+                </td>
+                <td>
+                    • Preview image is visible<br>
+                    • "Processing..." status appears<br>
+                    • "Extraction completed!" message appears<br>
+                    • "Extraction Results" section becomes visible<br>
+                    • JSON and Table view buttons are visible
+                </td>
+            </tr>
+            <tr>
+                <td><strong>FE-03</strong></td>
+                <td><strong>View Extraction Details</strong></td>
+                <td>• Action: Click "View" on an existing extraction in the list</td>
+                <td>
+                    • Modal opens with title "Extraction Details"<br>
+                    • JSON/Table data is displayed<br>
+                    • Modal closes when "×" is clicked
+                </td>
+            </tr>
+            <tr>
+                <td><strong>FE-04</strong></td>
+                <td><strong>Edit Extraction</strong></td>
+                <td>
+                    • Action: Click "Edit" on an extraction<br>
+                    • Input: Change "Document Type" to "Updated Doc Type"<br>
+                    • Action: Click "Save Changes"
+                </td>
+                <td>
+                    • "Extraction updated" message appears<br>
+                    • The extraction list reflects the new "Document Type"
+                </td>
+            </tr>
+            <tr>
+                <td><strong>FE-05</strong></td>
+                <td><strong>Delete Extraction</strong></td>
+                <td>
+                    • Action: Click "Delete" on an extraction<br>
+                    • Action: Confirm dialog (if applicable)
+                </td>
+                <td>
+                    • "Extraction deleted" message appears<br>
+                    • The extraction is removed from the list
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>2. Backend Test Cases (Spring Boot API)</h2>
+    <p>These tests verify the Spring Boot Backend REST API endpoints.</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Test Case ID</th>
+                <th>Test Case Description</th>
+                <th>Inputs</th>
+                <th>Expected Output</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>BE-01</strong></td>
+                <td><strong>Get All Extractions</strong></td>
+                <td>• Endpoint: <code>GET /v1/extractions</code></td>
+                <td>
+                    • Status Code: <code>200 OK</code><br>
+                    • Body: Array of extraction objects
+                </td>
+            </tr>
+            <tr>
+                <td><strong>BE-02</strong></td>
+                <td><strong>Upload File & Create Run</strong></td>
+                <td>
+                    • Endpoint: <code>POST /v1/uploads</code><br>
+                    • Multipart File: <code>sample_form.jpg</code>
+                </td>
+                <td>
+                    • Status Code: <code>200 OK</code><br>
+                    • Body: JSON containing valid <code>fileId</code> and <code>runId</code>
+                </td>
+            </tr>
+            <tr>
+                <td><strong>BE-03</strong></td>
+                <td><strong>Create Extraction (CRUD)</strong></td>
+                <td>
+                    • Endpoint: <code>POST /v1/extractions</code><br>
+                    • Body: JSON <code>{ "documentType": "Test Doc", ... }</code>
+                </td>
+                <td>
+                    • Status Code: <code>200 OK</code><br>
+                    • Body: Created extraction object with a generated <code>id</code>
+                </td>
+            </tr>
+            <tr>
+                <td><strong>BE-04</strong></td>
+                <td><strong>Read Extraction (CRUD)</strong></td>
+                <td>
+                    • Endpoint: <code>GET /v1/extractions/{id}</code><br>
+                    • Input: Valid Extraction ID
+                </td>
+                <td>
+                    • Status Code: <code>200 OK</code><br>
+                    • Body: Extraction object matching the ID
+                </td>
+            </tr>
+            <tr>
+                <td><strong>BE-05</strong></td>
+                <td><strong>Update Extraction (CRUD)</strong></td>
+                <td>
+                    • Endpoint: <code>PUT /v1/extractions/{id}</code><br>
+                    • Body: JSON <code>{ "documentType": "Updated Doc" }</code>
+                </td>
+                <td>
+                    • Status Code: <code>200 OK</code><br>
+                    • Body: Updated extraction object showing "Updated Doc"
+                </td>
+            </tr>
+            <tr>
+                <td><strong>BE-06</strong></td>
+                <td><strong>Delete Extraction (CRUD)</strong></td>
+                <td>
+                    • Endpoint: <code>DELETE /v1/extractions/{id}</code><br>
+                    • Input: Valid Extraction ID
+                </td>
+                <td>
+                    • Status Code: <code>200 OK</code> (or <code>204 No Content</code>)<br>
+                    • Subsequent GET returns <code>404 Not Found</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>3. OCR Service Test Cases (Python API)</h2>
+    <p>These tests verify the Python OCR Service endpoints.</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Test Case ID</th>
+                <th>Test Case Description</th>
+                <th>Inputs</th>
+                <th>Expected Output</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>OCR-01</strong></td>
+                <td><strong>Health Check</strong></td>
+                <td>• Endpoint: <code>GET /health</code></td>
+                <td>
+                    • Status Code: <code>200 OK</code><br>
+                    • Body: <code>{ "status": "healthy", "agent_initialized": true }</code>
+                </td>
+            </tr>
+            <tr>
+                <td><strong>OCR-02</strong></td>
+                <td><strong>Extract Text from Image</strong></td>
+                <td>
+                    • Endpoint: <code>POST /upload</code><br>
+                    • Multipart File: <code>sample_form.jpg</code>
+                </td>
+                <td>
+                    • Status Code: <code>200 OK</code><br>
+                    • Body: <code>{ "success": true, "extracted_data": { ... } }</code>
+                </td>
+            </tr>
+            <tr>
+                <td><strong>OCR-03</strong></td>
+                <td><strong>Convert JSON to HTML Table</strong></td>
+                <td>
+                    • Endpoint: <code>POST /convert-to-table</code><br>
+                    • Body: <code>{ "data": [...], "table_format": "html" }</code>
+                </td>
+                <td>
+                    • Status Code: <code>200 OK</code><br>
+                    • Body: String containing valid HTML <code>&lt;table&gt;</code> tags
+                </td>
+            </tr>
+            <tr>
+                <td><strong>OCR-04</strong></td>
+                <td><strong>Convert JSON to Markdown</strong></td>
+                <td>
+                    • Endpoint: <code>POST /convert-to-table</code><br>
+                    • Body: <code>{ "data": [...], "table_format": "markdown" }</code>
+                </td>
+                <td>
+                    • Status Code: <code>200 OK</code><br>
+                    • Body: JSON <code>{ "format": "markdown", "content": "| ... |" }</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+</body>
+</html>

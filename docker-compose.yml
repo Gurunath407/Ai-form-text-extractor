@@ -16,20 +16,27 @@ services:
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.h2.Driver
       SPRING_DATASOURCE_USERNAME: sa
       SPRING_DATASOURCE_PASSWORD:
-      OPENAI_API_KEY: ${OPENAI_API_KEY}   # Make sure this is set in your .env file
-      PYTHON_OCR_URL: http://python-service:8000  # Updated for Docker networking
+      OPENAI_API_KEY:
+      OPENAI_MODEL: gpt-4o-mini
+      PYTHON_OCR_URL: http://python-service:8000
+      LANGFUSE_PUBLIC_KEY: 
+      LANGFUSE_SECRET_KEY: 
+      LANGFUSE_BASE_URL: http://host.docker.internal:3001
+      LANGFUSE_OTLP_ENDPOINT: http://host.docker.internal:3001/api/public/otel/v1/traces
     volumes:
       - h2-data:/data
       - ./Backend/storage:/storage
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   react-frontend:
     build:
-      context: ./form-data-extractor  # Make sure this folder exists relative to docker-compose.yml
+      context: ./form-data-extractor
       dockerfile: Dockerfile
     container_name: react-frontend
     ports:
-      - "3000:80"   # Access frontend on localhost:3000
+      - "3000:80"
     depends_on:
       - java-api
     restart: unless-stopped
@@ -43,7 +50,14 @@ services:
       - "8000:8000"
     env_file:
       - ./ocr-service/.env
+    environment:
+      - LANGFUSE_PUBLIC_KEY=
+      - LANGFUSE_SECRET_KEY=
+      - LANGFUSE_HOST=http://host.docker.internal:3001
+      - OPENAI_API_KEY=
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 volumes:
   h2-data:

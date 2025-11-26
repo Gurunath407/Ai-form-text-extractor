@@ -109,6 +109,12 @@ public class AgentService {
             var llmSpan = tracer.spanBuilder("llm.structuring").startSpan();
             String rawOutput = null;
 
+            // Set input attribute for Langfuse
+            String fullPrompt = systemPrompt + "\n\nOCR_DATA:\n" + userPayload;
+            String inputForLangfuse = fullPrompt.length() > 10000 ? fullPrompt.substring(0, 10000) + "... (truncated)" : fullPrompt;
+            root.setAttribute("input", inputForLangfuse);
+            System.out.println("[LANGFUSE] Set input attribute (length: " + inputForLangfuse.length() + ")");
+
             try {
                 List<ChatMessage> messages = List.of(
                         new ChatMessage("system", systemPrompt),
@@ -131,6 +137,13 @@ public class AgentService {
                 });
 
                 System.out.println("LLM RAW OUTPUT --> " + rawOutput);
+
+                // Set output attribute for Langfuse
+                if (rawOutput != null) {
+                    String outputForLangfuse = rawOutput.length() > 10000 ? rawOutput.substring(0, 10000) + "... (truncated)" : rawOutput;
+                    root.setAttribute("output", outputForLangfuse);
+                    System.out.println("[LANGFUSE] Set output attribute (length: " + outputForLangfuse.length() + ")");
+                }
 
             } catch (Exception ex) {
                 System.err.println("❌ LLM call failed: " + ex.getMessage());

@@ -195,31 +195,46 @@ Return ONLY valid JSON with no additional text, markdown, or explanation before 
 The JSON should have descriptive keys based on the actual content structure."""
 
     def extract_handwriting(self, image_path: str, filename: str) -> Dict[str, Any]:
-        # Check for cached correction first
-        image_hash = self._get_image_hash(image_path)
-        cached = self._get_cached_correction(image_hash)
-        if cached:
-            print(f"[INFO] Using cached correction for {filename}")
-            return {
-                "success": True,
-                "filename": filename,
-                "extracted_data": cached["data"],
-                "message": "Used human-corrected result from cache",
-                "source": "cached_correction"
-            }
+        try:
+            print(f"[DEBUG] Starting extraction for {filename}")
+            # Check for cached correction first
+            image_hash = self._get_image_hash(image_path)
+            cached = self._get_cached_correction(image_hash)
+            if cached:
+                print(f"[INFO] Using cached correction for {filename}")
+                return {
+                    "success": True,
+                    "filename": filename,
+                    "extracted_data": cached["data"],
+                    "message": "Used human-corrected result from cache",
+                    "source": "cached_correction"
+                }
 
-        # Prefer HuggingFace (supports vision)
-        if self.hf_client:
-            hf_result = self.extract_handwriting_huggingface(image_path, filename)
-            if self.use_consensus and self.groq_client:
-                # Groq can't do vision, so consensus only if we had multiple vision models
-                # For now, just return HF result
-                return hf_result
+            # Prefer HuggingFace (supports vision)
+            if self.hf_client:
+                print(f"[DEBUG] Using HuggingFace for {filename}")
+                hf_result = self.extract_handwriting_huggingface(image_path, filename)
+                if self.use_consensus and self.groq_client:
+                    # Groq can't do vision, so consensus only if we had multiple vision models
+                    # For now, just return HF result
+                    return hf_result
+                else:
+                    return hf_result
             else:
-                return hf_result
-        else:
-            # Fallback to Groq (will fail on images, but included for completeness)
-            return self.extract_handwriting_groq(image_path, filename)
+                # Fallback to Groq (will fail on images, but included for completeness)
+                print(f"[DEBUG] Falling back to Groq for {filename}")
+                return self.extract_handwriting_groq(image_path, filename)
+        except Exception as e:
+            import traceback
+            print(f"[ERROR] extract_handwriting failed for {filename}: {type(e).__name__}: {str(e)}")
+            print(f"[ERROR] Traceback: {traceback.format_exc()}")
+            return {
+                "success": False,
+                "filename": filename,
+                "error": str(e),
+                "message": f"Extraction failed: {type(e).__name__}",
+                "source": "error"
+            }
 
     def extract_handwriting_huggingface(self, image_path: str, filename: str) -> Dict[str, Any]:
         if not self.hf_client:
@@ -262,36 +277,12 @@ The JSON should have descriptive keys based on the actual content structure."""
             # Log for potential fine-tuning
             self._log_for_finetuning(image_path, prompt, extracted_text, "huggingface_qwen_vl")
 
-            if self.langfuse:
-                try:
-                    trace = self.langfuse.trace(name="handwriting_extraction_hf")
-                    trace.update(input={"filename": filename}, output=result)
-                except Exception as e:
-                    print(f"[WARNING] Langfuse trace failed: {e}")
+
 
             return result
 
         except Exception as e:
             error_result = {
-                "success": False,
-                "filename": filename,
-                "error": str(e),
-                "message": "Failed to extract handwriting using HuggingFace",
-                "source": "huggingface_error"
-            }
-
-            if self.langfuse:
-                try:
-                    trace = self.langfuse.trace(name="handwriting_extraction_hf_error")
-                    trace.update(input={"filename": filename}, output=error_result)
-                except:
-                    pass
-
-            return error_result
-
-    def extract_handwriting_groq(self, image_path: str, filename: str) -> Dict[str, Any]:
-        if not self.groq_client:
-            return {
                 "success": False,
                 "filename": filename,
                 "error": "Groq API key not configured",

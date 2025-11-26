@@ -33,6 +33,9 @@ public class SimpleOcrTool implements OcrTool {
         File file = path.toFile();
         if (!file.exists()) throw new IllegalArgumentException("File not found: " + path);
 
+        // Set input attribute for Langfuse
+        System.out.println("[LANGFUSE OCR] Extracting from file: " + file.getName());
+
         // Build multipart request
         RequestBody fileBody = RequestBody.create(file, MediaType.parse("image/*"));
         MultipartBody requestBody = new MultipartBody.Builder()
@@ -51,6 +54,11 @@ public class SimpleOcrTool implements OcrTool {
             }
 
             String body = response.body() == null ? "" : response.body().string();
+            
+            // Log output for Langfuse
+            String outputPreview = body.length() > 200 ? body.substring(0, 200) + "..." : body;
+            System.out.println("[LANGFUSE OCR] Received response (preview): " + outputPreview);
+            
             JsonNode root = om.readTree(body);
 
             JsonNode extracted = null;
